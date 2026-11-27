@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Node / Remix / Cloudflare
+node_modules/
+frontend/build/
+frontend/.cache/
+frontend/.wrangler/
+.dev.vars
+.wrangler/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Local runtime storage & scratch backups
+storage/
+backups/
+*.db
+*.sqlite3
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

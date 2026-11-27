@@ -1,0 +1,24 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Enforce 200-line limit on non-Markdown files
+        run: python3 scripts/validation/check_line_limits.py
+      - name: Verify zero src directories exist
+        run: |
+          FOUND=$(find . -type d -name src -not -path '*/node_modules/*' -not -path '*/.git/*')
+          if [ -n "$FOUND" ]; then
+            echo "Forbidden src directory detected: $FOUND"
+            exit 1
+          fi

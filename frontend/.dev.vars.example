@@ -1,0 +1,6 @@
+APP_ENV=development
+COOKIE_SECURE=false
+APP_SECRET_KEY=dev-only-change-in-production-secret-key
+GEMINI_API_KEY=
+BACKUP_ENCRYPTION_KEY=dev-only-change-in-production-backup-key
+BACKUP_DROP_THRESHOLD_PERCENT=20
