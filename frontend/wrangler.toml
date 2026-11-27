@@ -6,7 +6,7 @@ pages_build_output_dir = "./build/client"
 [[d1_databases]]
 binding = "DB"
 database_name = "lilyaidatanotes-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "7f687e67-7303-4b0a-9964-0f5406cd67f9"
 migrations_dir = "migrations"
 
 [vars]
