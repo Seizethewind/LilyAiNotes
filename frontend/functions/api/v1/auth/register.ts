@@ -1,6 +1,7 @@
 import { buildAuditStatement } from "../../../_lib/audit/writeAuditLog";
 import { createSessionToken } from "../../../_lib/crypto/createSessionToken";
 import { hashPassword } from "../../../_lib/crypto/hashPassword";
+import { getSessionSecret } from "../../../_lib/auth/getSessionSecret";
 import { jsonResponse } from "../../../_lib/http/jsonResponse";
 import { parseJsonBody } from "../../../_lib/http/parseJsonBody";
 import { buildSessionCookieHeader } from "../../../_lib/http/setSessionCookie";
@@ -15,6 +16,7 @@ interface RegisterBody {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const secret = getSessionSecret(env); // check before any database write
   const body = await parseJsonBody<RegisterBody>(request);
   const email = (body.email || "").trim().toLowerCase();
   const displayName = (body.display_name || "").trim();
@@ -57,7 +59,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }),
   ]);
 
-  const secret = env.APP_SECRET_KEY || "dev-fallback-secret-change-me";
   const token = await createSessionToken(userId, workspaceId, secret);
   const secure = env.COOKIE_SECURE === "true" && new URL(request.url).protocol === "https:";
 

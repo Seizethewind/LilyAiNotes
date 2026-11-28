@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { GoogleSignInPanel } from "~/components/auth/GoogleSignInPanel";
 import { AppShell } from "~/components/layout/AppShell";
 import { ApiKeysPanel } from "~/components/settings/ApiKeysPanel";
 import { ExternalAiGuidePanel } from "~/components/settings/ExternalAiGuidePanel";
@@ -83,6 +84,8 @@ export default function SettingsRoute() {
       ) : (
         <div className="space-y-8">
           {error && <p className="text-sm font-medium text-red-700">{error}</p>}
+
+          <GoogleSignInPanel mode="link" />
 
           <ApiKeysPanel
             keys={keys}

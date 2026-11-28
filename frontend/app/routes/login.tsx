@@ -2,6 +2,7 @@ import { useNavigate } from "@remix-run/react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import { GoogleSignInPanel } from "~/components/auth/GoogleSignInPanel";
 import { useSession } from "~/context/SessionContext";
 import { ApiClientError, apiRequest } from "~/services/api/apiClient";
 import type { AuthSessionResponse } from "~/types/api";
@@ -141,6 +142,8 @@ export default function LoginRoute() {
                 : "Create account & workspace"}
           </button>
         </form>
+
+        <GoogleSignInPanel mode="login" />
       </div>
     </div>
   );

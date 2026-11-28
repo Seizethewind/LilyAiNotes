@@ -1,5 +1,6 @@
 import { createSessionToken } from "../../../_lib/crypto/createSessionToken";
 import { verifyPassword } from "../../../_lib/crypto/verifyPassword";
+import { getSessionSecret } from "../../../_lib/auth/getSessionSecret";
 import { jsonResponse } from "../../../_lib/http/jsonResponse";
 import { parseJsonBody } from "../../../_lib/http/parseJsonBody";
 import { buildSessionCookieHeader } from "../../../_lib/http/setSessionCookie";
@@ -12,6 +13,7 @@ interface LoginBody {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const secret = getSessionSecret(env); // check before any database write
   const body = await parseJsonBody<LoginBody>(request);
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
@@ -53,7 +55,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     ]);
   }
 
-  const secret = env.APP_SECRET_KEY || "dev-fallback-secret-change-me";
   const token = await createSessionToken(user.id, workspaceId, secret);
   const secure = env.COOKIE_SECURE === "true" && new URL(request.url).protocol === "https:";
 

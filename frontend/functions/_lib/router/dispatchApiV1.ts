@@ -2,6 +2,9 @@ import * as agentGuideRoute from "../../api/v1/agent/guide";
 import * as agentIngestRoute from "../../api/v1/agent/ingest";
 import * as assistantChat from "../../api/v1/assistant/chat";
 import * as auditRoute from "../../api/v1/audit";
+import * as googleCallbackRoute from "../../api/v1/auth/google/callback";
+import * as googleStartRoute from "../../api/v1/auth/google/start";
+import * as googleStatusRoute from "../../api/v1/auth/google/status";
 import * as loginRoute from "../../api/v1/auth/login";
 import * as logoutRoute from "../../api/v1/auth/logout";
 import * as meRoute from "../../api/v1/auth/me";
@@ -66,6 +69,9 @@ export async function dispatchApiV1(request: Request, env: Env | undefined): Pro
       "/api/v1/auth/login": { POST: loginRoute.onRequestPost },
       "/api/v1/auth/logout": { POST: logoutRoute.onRequestPost },
       "/api/v1/auth/me": { GET: meRoute.onRequestGet },
+      "/api/v1/auth/google/start": { GET: googleStartRoute.onRequestGet },
+      "/api/v1/auth/google/callback": { GET: googleCallbackRoute.onRequestGet },
+      "/api/v1/auth/google/status": { GET: googleStatusRoute.onRequestGet },
       "/api/v1/keys": { GET: keysIndexRoute.onRequestGet, POST: keysIndexRoute.onRequestPost },
       "/api/v1/audit": { GET: auditRoute.onRequestGet },
       "/api/v1/workspaces": { GET: workspacesRoute.onRequestGet, POST: workspacesRoute.onRequestPost },

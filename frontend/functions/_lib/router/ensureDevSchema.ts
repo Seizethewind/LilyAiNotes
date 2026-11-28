@@ -19,6 +19,9 @@ const SCHEMA_STATEMENTS = [
   "CREATE TABLE IF NOT EXISTS audit_log (id TEXT PRIMARY KEY, workspace_id TEXT, actor_type TEXT NOT NULL, actor_id TEXT NOT NULL, action TEXT NOT NULL, resource_type TEXT NOT NULL, resource_id TEXT NOT NULL, details TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)",
 ];
 
+const IDENTITIES_STATEMENT =
+  "CREATE TABLE IF NOT EXISTS user_identities (provider TEXT NOT NULL, subject TEXT NOT NULL, user_id TEXT NOT NULL REFERENCES users(id), created_at TEXT NOT NULL, PRIMARY KEY (provider, subject), UNIQUE (user_id, provider))";
+
 let schemaBootstrapped = false;
 
 export async function ensureDevSchema(db: D1Database): Promise<void> {
@@ -42,5 +45,6 @@ export async function ensureDevSchema(db: D1Database): Promise<void> {
       await db.prepare(stmt).run();
     }
   }
+  await db.prepare(IDENTITIES_STATEMENT).run();
   schemaBootstrapped = true;
 }

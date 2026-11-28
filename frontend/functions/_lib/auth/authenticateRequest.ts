@@ -2,6 +2,7 @@ import { sha256Hex } from "../crypto/sha256Hex";
 import { verifySessionToken } from "../crypto/verifySessionToken";
 import { AppError, SESSION_COOKIE_NAME } from "../types/env";
 import type { AuthPrincipal, Env } from "../types/env";
+import { getSessionSecret } from "./getSessionSecret";
 
 export async function authenticateRequest(request: Request, env: Env): Promise<AuthPrincipal> {
   const authHeader = request.headers.get("Authorization") || "";
@@ -40,15 +41,14 @@ export async function authenticateRequest(request: Request, env: Env): Promise<A
   if (!sessionToken) {
     throw new AppError("unauthorized", "Authentication required.", 401);
   }
-  const secret = env.APP_SECRET_KEY || "dev-fallback-secret-change-me";
-  const claims = await verifySessionToken(sessionToken, secret);
+  const claims = await verifySessionToken(sessionToken, getSessionSecret(env));
   if (!claims) {
     throw new AppError("unauthorized", "Invalid or expired session.", 401);
   }
   const user = await env.DB.prepare(
-    "SELECT id, display_name, role FROM users WHERE id = ? AND is_active = 1",
+    "SELECT u.id, u.display_name, u.role FROM users u JOIN workspace_members m ON m.user_id = u.id WHERE u.id = ? AND m.workspace_id = ? AND u.is_active = 1",
   )
-    .bind(claims.sub)
+    .bind(claims.sub, claims.ws)
     .first<{ id: string; display_name: string; role: string }>();
   if (!user) {
     throw new AppError("unauthorized", "User account is unavailable.", 401);

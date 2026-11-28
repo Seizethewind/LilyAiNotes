@@ -8,6 +8,8 @@ export interface Env {
   BACKUP_ENCRYPTION_KEY?: string;
   BACKUP_DROP_THRESHOLD_PERCENT?: string;
   GEMINI_API_KEY?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 export interface AuthPrincipal {
