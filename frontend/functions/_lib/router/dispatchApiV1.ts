@@ -1,3 +1,5 @@
+import * as agentGuideRoute from "../../api/v1/agent/guide";
+import * as agentIngestRoute from "../../api/v1/agent/ingest";
 import * as assistantChat from "../../api/v1/assistant/chat";
 import * as auditRoute from "../../api/v1/audit";
 import * as loginRoute from "../../api/v1/auth/login";
@@ -77,6 +79,8 @@ export async function dispatchApiV1(request: Request, env: Env | undefined): Pro
       "/api/v1/knowledge": { ANY: knowledgeRoute.onRequest },
       "/api/v1/memory": { ANY: memoryRoute.onRequest },
       "/api/v1/conversations": { ANY: conversationsRoute.onRequest },
+      "/api/v1/agent/guide": { GET: agentGuideRoute.onRequestGet },
+      "/api/v1/agent/ingest": { POST: agentIngestRoute.onRequestPost },
       "/api/v1/assistant/chat": { POST: assistantChat.onRequestPost },
       "/api/v1/providers": { ANY: providersRoute.onRequest },
       "/api/v1/exports": { GET: exportsRoute.onRequestGet },

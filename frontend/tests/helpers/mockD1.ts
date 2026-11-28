@@ -70,8 +70,10 @@ export function createMockD1(): D1Database {
   sqlite.exec("PRAGMA foreign_keys = ON;");
   const migration1 = readFileSync(resolve(process.cwd(), "migrations/0001_initial_schema.sql"), "utf-8");
   const migration2 = readFileSync(resolve(process.cwd(), "migrations/0002_classification_and_keys.sql"), "utf-8");
+  const migration3 = readFileSync(resolve(process.cwd(), "migrations/0003_api_key_project_scope.sql"), "utf-8");
   sqlite.exec(migration1);
   sqlite.exec(migration2);
+  sqlite.exec(migration3);
 
   const mock = {
     prepare(sql: string) {

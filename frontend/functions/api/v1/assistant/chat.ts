@@ -2,6 +2,7 @@ import { askGeminiWithNotes } from "../../../_lib/ai/askGeminiWithNotes";
 import type { ChatTurn, GroundedNoteContext } from "../../../_lib/ai/askGeminiWithNotes";
 import { selectNoteKeysFromHeaders } from "../../../_lib/ai/selectNoteKeysFromHeaders";
 import { authenticateRequest } from "../../../_lib/auth/authenticateRequest";
+import { resolveEffectiveProject } from "../../../_lib/auth/resolveEffectiveProject";
 import { jsonResponse } from "../../../_lib/http/jsonResponse";
 import { parseJsonBody } from "../../../_lib/http/parseJsonBody";
 import { AppError } from "../../../_lib/types/env";
@@ -31,7 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const principal = await authenticateRequest(request, env);
   const body = await parseJsonBody<ChatBody>(request);
   const message = (body.message || "").trim();
-  const project = (body.project || "").trim() || undefined;
+  const project = resolveEffectiveProject(principal, body.project);
   const noteType = (body.type || "").trim() || undefined;
   const tag = (body.tag || "").trim().toLowerCase() || undefined;
   if (!message) {

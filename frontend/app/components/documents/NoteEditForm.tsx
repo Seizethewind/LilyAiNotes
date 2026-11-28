@@ -1,7 +1,11 @@
+import { useMemo } from "react";
 import type { FormEvent } from "react";
 
+import { NoteContentEditor } from "~/components/documents/NoteContentEditor";
 import { TagInputField } from "~/components/documents/TagInputField";
 import type { NoteType } from "~/types/api";
+
+const MAX_NOTE_BYTES = 100 * 1024;
 
 interface NoteEditFormProps {
   title: string;
@@ -22,6 +26,8 @@ interface NoteEditFormProps {
 }
 
 export function NoteEditForm(props: NoteEditFormProps) {
+  const byteLength = useMemo(() => new TextEncoder().encode(props.content).byteLength, [props.content]);
+
   return (
     <form onSubmit={props.onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -54,12 +60,12 @@ export function NoteEditForm(props: NoteEditFormProps) {
         className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
       />
       <TagInputField tags={props.tags} suggestions={props.availableTags} onChange={props.onTagsChange} />
-      <textarea
-        required
-        rows={8}
-        value={props.content}
-        onChange={(e) => props.onContentChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-xs"
+      <NoteContentEditor
+        isImportMode={false}
+        content={props.content}
+        byteLength={byteLength}
+        maxBytes={MAX_NOTE_BYTES}
+        onChange={props.onContentChange}
       />
       <input
         required

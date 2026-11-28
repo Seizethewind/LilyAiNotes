@@ -33,6 +33,7 @@ export default function DashboardRoute() {
   }, [user, token]);
 
   const verifiedCount = notes.filter((n) => n.status === "verified").length;
+  const unverifiedCount = notes.filter((n) => n.status === "unverified").length;
   const draftCount = notes.filter((n) => n.status === "draft").length;
 
   return (
@@ -64,6 +65,14 @@ export default function DashboardRoute() {
             <p className="mt-2 text-2xl font-semibold text-slate-900 tabular-nums">{notes.length}</p>
             <p className="mt-1 text-xs text-slate-500 tabular-nums">
               {verifiedCount} verified · {draftCount} drafts
+              {unverifiedCount > 0 && (
+                <>
+                  {" · "}
+                  <Link to="/documents?status=unverified" className="font-medium text-indigo-700 hover:underline">
+                    {unverifiedCount} unverified
+                  </Link>
+                </>
+              )}
             </p>
           </div>
 

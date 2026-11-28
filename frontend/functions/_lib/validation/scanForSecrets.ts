@@ -1,6 +1,8 @@
 import { AppError } from "../types/env";
 
 const SECRET_PATTERNS: ReadonlyArray<[string, RegExp]> = [
+  ["LilyAiDataNotes API key", /\bLilyAiApikey[A-Za-z0-9]{20}\b/],
+  ["LilyAiDataNotes legacy API key", /\blily_k_[A-Za-z0-9_-]{20,}\b/],
   ["OpenAI-style API key", /\bsk-[A-Za-z0-9_-]{20,}\b/],
   ["Anthropic API key", /\bsk-ant-[A-Za-z0-9_-]{20,}\b/],
   ["Google API key", /\bAIza[0-9A-Za-z_-]{30,}\b/],

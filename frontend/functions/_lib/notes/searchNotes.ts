@@ -6,6 +6,7 @@ const STATUS_WEIGHTS: Record<string, number> = {
   verified: 40,
   draft: 25,
   disputed: 10,
+  unverified: 8,
   superseded: 5,
 };
 

@@ -5,30 +5,41 @@ import type { ApiKeyRecord } from "~/types/api";
 
 interface ApiKeysPanelProps {
   keys: ApiKeyRecord[];
+  projects: string[];
   revealedKey: string | null;
-  onCreate: (name: string, scope: "read" | "read+write") => Promise<void>;
+  onCreate: (name: string, scope: "read" | "read+write", allowedProject: string | null) => Promise<void>;
   onRevoke: (id: string) => Promise<void>;
 }
 
-export function ApiKeysPanel({ keys, revealedKey, onCreate, onRevoke }: ApiKeysPanelProps) {
+export function ApiKeysPanel({ keys, projects, revealedKey, onCreate, onRevoke }: ApiKeysPanelProps) {
   const [name, setName] = useState("");
   const [scope, setScope] = useState<"read" | "read+write">("read");
+  const [allowedProject, setAllowedProject] = useState("");
+  const [copied, setCopied] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    await onCreate(name, scope);
+    await onCreate(name, scope, allowedProject.trim() || null);
     setName("");
+    setAllowedProject("");
+  }
+
+  function handleCopyKey() {
+    if (!revealedKey) return;
+    void navigator.clipboard?.writeText(revealedKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6">
       <h2 className="text-base font-semibold text-slate-900">AI Client API Keys</h2>
       <p className="mt-1 text-xs text-slate-500">
-        Keys are hashed on the server and shown once at creation. Write keys can only create drafts.
+        Keys are hashed on the server and shown once at creation. Write keys always queue submissions as unverified.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap items-end gap-3">
-        <div className="min-w-52 flex-1">
+        <div className="min-w-48 flex-1">
           <label htmlFor="key-name" className="mb-1 block text-xs font-medium text-slate-700">
             Client Name
           </label>
@@ -37,7 +48,7 @@ export function ApiKeysPanel({ keys, revealedKey, onCreate, onRevoke }: ApiKeysP
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Lily MCP Agent"
+            placeholder="External Research Agent"
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
           />
         </div>
@@ -52,8 +63,26 @@ export function ApiKeysPanel({ keys, revealedKey, onCreate, onRevoke }: ApiKeysP
             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
           >
             <option value="read">read</option>
-            <option value="read+write">read+write (drafts only)</option>
+            <option value="read+write">read+write (unverified intake)</option>
           </select>
+        </div>
+        <div className="min-w-44">
+          <label htmlFor="key-project" className="mb-1 block text-xs font-medium text-slate-700">
+            Project Restriction (Optional)
+          </label>
+          <input
+            id="key-project"
+            list="api-key-projects"
+            value={allowedProject}
+            onChange={(e) => setAllowedProject(e.target.value)}
+            placeholder="All workspace projects"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          />
+          <datalist id="api-key-projects">
+            {projects.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
         </div>
         <button
           type="submit"
@@ -64,23 +93,36 @@ export function ApiKeysPanel({ keys, revealedKey, onCreate, onRevoke }: ApiKeysP
       </form>
 
       {revealedKey && (
-        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-semibold text-emerald-900">
-            Copy this key now — it will not be shown again:
-          </p>
-          <p className="mt-1 break-all font-mono text-xs text-emerald-800">{revealedKey}</p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-emerald-900">
+              Copy this key now — it will not be shown again:
+            </p>
+            <p className="mt-1 break-all font-mono text-xs text-emerald-800">{revealedKey}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleCopyKey}
+            className="rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-100 whitespace-nowrap"
+          >
+            {copied ? "Copied" : "Copy Key"}
+          </button>
         </div>
       )}
 
       <div className="mt-6 divide-y divide-slate-100 border-t border-slate-200">
         {keys.map((k) => (
-          <div key={k.id} className="flex items-center justify-between gap-4 py-3 text-xs">
-            <div>
+          <div key={k.id} className="flex flex-wrap items-center justify-between gap-4 py-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium text-slate-900">{k.name}</span>
-              <span className="mx-2 text-slate-300">·</span>
+              <span className="text-slate-300">·</span>
               <span className="font-mono text-slate-600">{k.key_prefix}...</span>
-              <span className="mx-2 text-slate-300">·</span>
+              <span className="text-slate-300">·</span>
               <span className="text-slate-600">{k.scope}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-slate-600">
+                {k.allowed_project ? `Project: ${k.allowed_project}` : "All projects"}
+              </span>
             </div>
             {k.revoked_at ? (
               <span className="text-red-700">Revoked</span>

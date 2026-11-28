@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@remix-run/react";
-import { Bot, FileText, LayoutDashboard, LogIn, LogOut, Menu, Settings } from "lucide-react";
+import { BookOpen, Bot, FileText, LayoutDashboard, LogIn, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/documents", label: "Documents", icon: FileText },
   { to: "/assistant", label: "Assistant", icon: Bot },
+  { to: "/docs", label: "Endpoint Docs", icon: BookOpen },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

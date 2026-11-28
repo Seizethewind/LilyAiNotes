@@ -1,5 +1,6 @@
 import { authenticateRequest } from "../../../_lib/auth/authenticateRequest";
 import { requireWriteScope } from "../../../_lib/auth/requireWriteScope";
+import { resolveEffectiveProject } from "../../../_lib/auth/resolveEffectiveProject";
 import { jsonResponse } from "../../../_lib/http/jsonResponse";
 import { parseJsonBody } from "../../../_lib/http/parseJsonBody";
 import { createNote } from "../../../_lib/notes/createNote";
@@ -13,7 +14,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const principal = await authenticateRequest(request, env);
   const url = new URL(request.url);
   const status = url.searchParams.get("status");
-  const project = url.searchParams.get("project");
+  const project = resolveEffectiveProject(principal, url.searchParams.get("project"));
   const noteType = url.searchParams.get("type");
   const scope = url.searchParams.get("scope");
   const tag = (url.searchParams.get("tag") || "").trim().toLowerCase();

@@ -1,6 +1,6 @@
 import { authenticateRequest } from "../../../../_lib/auth/authenticateRequest";
 import { jsonResponse } from "../../../../_lib/http/jsonResponse";
-import { AppError } from "../../../../_lib/types/env";
+import { findAccessibleNote } from "../../../../_lib/notes/findAccessibleNote";
 import type { Env } from "../../../../_lib/types/env";
 
 interface LinkSummary {
@@ -12,13 +12,8 @@ interface LinkSummary {
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const principal = await authenticateRequest(request, env);
-  const noteId = String(params.id || "");
-  const note = await env.DB.prepare(
-    "SELECT id, parent_id, supersedes_id FROM notes WHERE id = ? AND workspace_id = ? AND deleted_at IS NULL",
-  )
-    .bind(noteId, principal.workspaceId)
-    .first<{ id: string; parent_id: string | null; supersedes_id: string | null }>();
-  if (!note) throw new AppError("not_found", "Note not found.", 404);
+  const note = await findAccessibleNote(env.DB, principal, String(params.id || ""));
+  const noteId = note.id;
 
   const links = await env.DB.prepare("SELECT to_id, kind FROM note_links WHERE from_id = ?")
     .bind(noteId)

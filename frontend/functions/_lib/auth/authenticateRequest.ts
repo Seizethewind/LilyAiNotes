@@ -7,13 +7,13 @@ export async function authenticateRequest(request: Request, env: Env): Promise<A
   const authHeader = request.headers.get("Authorization") || "";
   const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
 
-  if (bearer.startsWith("lily_k_")) {
+  if (bearer.startsWith("LilyAiApikey") || bearer.startsWith("lily_k_")) {
     const keyHash = await sha256Hex(bearer);
     const keyRow = await env.DB.prepare(
-      "SELECT id, workspace_id, name, scope FROM api_keys WHERE key_hash = ? AND revoked_at IS NULL",
+      "SELECT id, workspace_id, name, scope, allowed_project FROM api_keys WHERE key_hash = ? AND revoked_at IS NULL",
     )
       .bind(keyHash)
-      .first<{ id: string; workspace_id: string; name: string; scope: string }>();
+      .first<{ id: string; workspace_id: string; name: string; scope: string; allowed_project: string | null }>();
     if (!keyRow) {
       throw new AppError("unauthorized", "Invalid or revoked API key.", 401);
     }
@@ -27,6 +27,7 @@ export async function authenticateRequest(request: Request, env: Env): Promise<A
       displayName: keyRow.name,
       scope: keyRow.scope === "read+write" ? "read+write" : "read",
       role: "agent",
+      allowedProject: keyRow.allowed_project?.trim() || null,
     };
   }
 
@@ -59,5 +60,6 @@ export async function authenticateRequest(request: Request, env: Env): Promise<A
     displayName: user.display_name,
     scope: "human",
     role: user.role,
+    allowedProject: null,
   };
 }

@@ -11,7 +11,7 @@ import type { Env } from "../../../_lib/types/env";
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const principal = requireHumanSession(await authenticateRequest(request, env));
   const rows = await env.DB.prepare(
-    "SELECT id, workspace_id, name, key_prefix, scope, created_at, last_used_at, revoked_at FROM api_keys WHERE workspace_id = ? ORDER BY created_at DESC",
+    "SELECT id, workspace_id, name, key_prefix, scope, allowed_project, created_at, last_used_at, revoked_at FROM api_keys WHERE workspace_id = ? ORDER BY created_at DESC",
   )
     .bind(principal.workspaceId)
     .all();
@@ -20,10 +20,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const principal = requireHumanSession(await authenticateRequest(request, env));
-  const body = await parseJsonBody<{ name?: string; scope?: string }>(request);
+  const body = await parseJsonBody<{ name?: string; scope?: string; allowed_project?: string | null }>(request);
   const name = (body.name || "").trim();
   if (!name) throw new AppError("validation_error", "Key name is required.", 422);
   const scope = body.scope === "read+write" ? "read+write" : "read";
+  const allowedProject = (body.allowed_project || "").trim() || null;
 
   const { fullKey, prefix } = generateApiKey();
   const keyHash = await sha256Hex(fullKey);
@@ -32,8 +33,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   await env.DB.batch([
     env.DB.prepare(
-      "INSERT INTO api_keys (id, workspace_id, user_id, name, key_prefix, key_hash, scope, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    ).bind(id, principal.workspaceId, principal.subjectId, name, prefix, keyHash, scope, now),
+      "INSERT INTO api_keys (id, workspace_id, user_id, name, key_prefix, key_hash, scope, allowed_project, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    ).bind(id, principal.workspaceId, principal.subjectId, name, prefix, keyHash, scope, allowedProject, now),
     buildAuditStatement(env.DB, {
       workspaceId: principal.workspaceId,
       actorType: "human",
@@ -41,7 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       action: "api_key.create",
       resourceType: "api_key",
       resourceId: id,
-      details: { name, scope },
+      details: { name, scope, allowed_project: allowedProject },
     }),
   ]);
 
@@ -52,6 +53,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       name,
       key_prefix: prefix,
       scope,
+      allowed_project: allowedProject,
       created_at: now,
       last_used_at: null,
       revoked_at: null,

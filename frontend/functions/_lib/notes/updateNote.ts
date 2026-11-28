@@ -34,11 +34,14 @@ export async function updateNote(
     .first<NoteRow>();
   if (!existing) throw new AppError("not_found", "Note not found.", 404);
 
+  if (principal.allowedProject && existing.project !== principal.allowedProject) {
+    throw new AppError("forbidden", `This API key is restricted to project '${principal.allowedProject}'.`, 403);
+  }
   if (
     principal.kind === "api_key" &&
-    (existing.status !== "draft" || existing.created_by_key_id !== principal.subjectId)
+    ((existing.status !== "unverified" && existing.status !== "draft") || existing.created_by_key_id !== principal.subjectId)
   ) {
-    throw new AppError("forbidden", "API keys can only edit draft notes created by the same key.", 403);
+    throw new AppError("forbidden", "API keys can only edit unverified or draft notes created by the same key.", 403);
   }
 
   const changeNote = (input.change_note || "").trim();

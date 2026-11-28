@@ -16,7 +16,7 @@ async function seedUserAndWorkspace(db: D1Database): Promise<AuthPrincipal> {
     db.prepare("INSERT INTO workspaces (id, name, slug, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
       .bind("w1", "Primary", "primary", "u1", now, now),
   ]);
-  return { kind: "human", subjectId: "u1", workspaceId: "w1", displayName: "Owner", scope: "human", role: "owner" };
+  return { kind: "human", subjectId: "u1", workspaceId: "w1", displayName: "Owner", scope: "human", role: "owner", allowedProject: null };
 }
 
 describe("encrypted D1 backup and restore guards", () => {

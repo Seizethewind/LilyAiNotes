@@ -4,8 +4,18 @@ import type { FilterTab } from "~/components/documents/DocumentsToolbar";
 import { ApiClientError, apiRequest } from "~/services/api/apiClient";
 import type { NoteRecord, NoteSearchItem, TagFacet } from "~/types/api";
 
-export function useDocumentsWorkspace(userPresent: boolean, token: string | null, initialNoteId: string | null) {
-  const [tab, setTab] = useState<FilterTab>("all");
+const VALID_TABS = new Set<FilterTab>(["all", "unverified", "verified", "draft", "disputed", "trash"]);
+
+export function useDocumentsWorkspace(
+  userPresent: boolean,
+  token: string | null,
+  initialNoteId: string | null,
+  initialStatus?: string | null,
+) {
+  const defaultTab: FilterTab = initialStatus && VALID_TABS.has(initialStatus as FilterTab)
+    ? (initialStatus as FilterTab)
+    : "all";
+  const [tab, setTab] = useState<FilterTab>(defaultTab);
   const [typeFilter, setTypeFilter] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
   const [scopeFilter, setScopeFilter] = useState("");

@@ -1,6 +1,6 @@
 export type NoteType = "fact" | "decision" | "procedure" | "preference" | "code" | "log" | "config";
 export type NoteScope = "global" | "project" | "agent" | "private";
-export type NoteStatus = "draft" | "verified" | "disputed" | "superseded";
+export type NoteStatus = "unverified" | "draft" | "verified" | "disputed" | "superseded";
 
 export interface UserProfile {
   id: string;
@@ -125,10 +125,42 @@ export interface ApiKeyRecord {
   name: string;
   key_prefix: string;
   scope: "read" | "read+write";
+  allowed_project: string | null;
   created_at: string;
   last_used_at: string | null;
   revoked_at: string | null;
   plaintext_key?: string;
+}
+
+export interface AgentGuideEndpoint {
+  method: string;
+  path: string;
+  description: string;
+}
+
+export interface AgentGuideResponse {
+  service: string;
+  template_version: string;
+  pull_endpoints: AgentGuideEndpoint[];
+  push_endpoint: { method: string; path: string; dry_run_path: string; required_scope: string };
+  sample_template: Record<string, unknown>;
+  guidelines: string[];
+}
+
+export interface AgentDryRunResponse {
+  valid: boolean;
+  dry_run: boolean;
+  review_status: string;
+  resolved_project: string;
+  classification_source: string;
+  note_preview: {
+    title: string;
+    type: NoteType;
+    summary: string;
+    tags: string[];
+    project: string;
+    scope: NoteScope;
+  };
 }
 
 export interface AuditLogRecord {

@@ -16,7 +16,12 @@ export default function DocumentsRoute() {
   const { user, token } = useSession();
   const [searchParams] = useSearchParams();
   const [showCreate, setShowCreate] = useState(false);
-  const ws = useDocumentsWorkspace(Boolean(user), token, searchParams.get("note"));
+  const ws = useDocumentsWorkspace(
+    Boolean(user),
+    token,
+    searchParams.get("note"),
+    searchParams.get("status"),
+  );
 
   return (
     <AppShell

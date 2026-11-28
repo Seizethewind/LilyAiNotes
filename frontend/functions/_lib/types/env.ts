@@ -17,6 +17,7 @@ export interface AuthPrincipal {
   displayName: string;
   scope: "human" | "read" | "read+write";
   role: string;
+  allowedProject: string | null;
 }
 
 export class AppError extends Error {
@@ -48,3 +49,4 @@ export const TYPE_PREFIX_MAP: Record<string, string> = {
 };
 
 export const VALID_NOTE_TYPES = new Set(Object.keys(TYPE_PREFIX_MAP));
+export const VALID_NOTE_STATUSES = new Set(["unverified", "draft", "verified", "disputed", "superseded"]);

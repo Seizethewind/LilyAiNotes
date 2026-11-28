@@ -2,7 +2,7 @@ import { Download, Search } from "lucide-react";
 
 import type { TagFacet } from "~/types/api";
 
-export type FilterTab = "all" | "verified" | "draft" | "disputed" | "trash";
+export type FilterTab = "all" | "unverified" | "verified" | "draft" | "disputed" | "trash";
 
 interface DocumentsToolbarProps {
   tab: FilterTab;
@@ -33,7 +33,7 @@ export function DocumentsToolbar(props: DocumentsToolbarProps) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
-          {(["all", "verified", "draft", "disputed", "trash"] as const).map((item) => (
+          {(["all", "unverified", "verified", "draft", "disputed", "trash"] as const).map((item) => (
             <button
               key={item}
               type="button"

@@ -44,7 +44,7 @@ export function NoteActionBar(props: NoteActionBarProps) {
             onClick={() => props.onVerify("verified")}
             className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 whitespace-nowrap"
           >
-            Verify
+            {note.status === "unverified" ? "Approve & Verify" : "Verify"}
           </button>
           <button
             type="button"
@@ -52,7 +52,7 @@ export function NoteActionBar(props: NoteActionBarProps) {
             onClick={() => props.onVerify("disputed")}
             className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50 whitespace-nowrap"
           >
-            Dispute
+            {note.status === "unverified" ? "Reject" : "Dispute"}
           </button>
           <button
             type="button"

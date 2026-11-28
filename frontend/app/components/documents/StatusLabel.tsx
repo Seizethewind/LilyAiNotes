@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, RefreshCw, ShieldAlert } from "lucide-react";
 
 import type { NoteStatus } from "~/types/api";
 
@@ -8,6 +8,14 @@ export function StatusLabel({ status }: { status: NoteStatus | string }) {
       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         <span>Verified</span>
+      </span>
+    );
+  }
+  if (status === "unverified") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-700">
+        <ShieldAlert className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        <span>Unverified</span>
       </span>
     );
   }

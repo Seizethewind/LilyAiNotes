@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import { NoteActionBar } from "~/components/documents/NoteActionBar";
+import { NoteBodySection } from "~/components/documents/NoteBodySection";
 import { NoteEditForm } from "~/components/documents/NoteEditForm";
 import { NoteLinksSection } from "~/components/documents/NoteLinksSection";
 import { StatusLabel } from "~/components/documents/StatusLabel";
@@ -171,9 +172,7 @@ export function NoteDetailPanel({
           onSubmit={(e) => void handleSaveEdit(e)}
         />
       ) : (
-        <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-xs leading-relaxed text-slate-800">
-          {note.content}
-        </pre>
+        <NoteBodySection content={note.content} />
       )}
 
       {!note.deleted_at && (

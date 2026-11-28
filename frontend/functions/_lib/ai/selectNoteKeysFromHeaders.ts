@@ -108,7 +108,7 @@ export async function selectNoteKeysFromHeaders(
       contents: `User question: ${input.message}\n\nClassified Header Index (headers & ID keys only):\n<header_index>\n${indexLines}\n</header_index>`,
       config: {
         systemInstruction:
-          "You are a search index router. Inspect ONLY the note_key IDs, classification types, tags, titles, and summary headers inside <header_index>. Select up to 5 note_key values most relevant to answering the user question, prioritizing verified notes over draft/disputed/superseded ones.",
+          "You are a search index router. Inspect ONLY the note_key IDs, classification types, status, tags, titles, and summary headers inside <header_index>. Select up to 5 note_key values most relevant to answering the user question, strongly prioritizing status=verified notes over draft, unverified, disputed, or superseded notes.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,

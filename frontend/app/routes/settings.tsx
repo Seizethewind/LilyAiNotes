@@ -1,28 +1,37 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "~/components/layout/AppShell";
 import { ApiKeysPanel } from "~/components/settings/ApiKeysPanel";
+import { ExternalAiGuidePanel } from "~/components/settings/ExternalAiGuidePanel";
 import { useSession } from "~/context/SessionContext";
 import { ApiClientError, apiRequest } from "~/services/api/apiClient";
 import { downloadWorkspaceExport } from "~/services/api/downloadWorkspaceExport";
-import type { ApiKeyRecord, AuditLogRecord } from "~/types/api";
+import type { ApiKeyRecord, AuditLogRecord, NoteRecord } from "~/types/api";
 
 export default function SettingsRoute() {
   const { user, token } = useSession();
   const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
   const [audit, setAudit] = useState<AuditLogRecord[]>([]);
+  const [notes, setNotes] = useState<NoteRecord[]>([]);
   const [revealedKey, setRevealedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const projects = useMemo(
+    () => Array.from(new Set(notes.map((n) => n.project))).sort((a, b) => a.localeCompare(b)),
+    [notes],
+  );
 
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const [keyRows, auditRows] = await Promise.all([
+      const [keyRows, auditRows, noteRows] = await Promise.all([
         apiRequest<ApiKeyRecord[]>("/keys", { token }),
         apiRequest<AuditLogRecord[]>("/audit?limit=25", { token }),
+        apiRequest<NoteRecord[]>("/notes", { token }),
       ]);
       setKeys(keyRows);
       setAudit(auditRows);
+      setNotes(noteRows);
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : "Failed to load security settings.");
     }
@@ -32,14 +41,14 @@ export default function SettingsRoute() {
     void loadData();
   }, [loadData]);
 
-  async function handleCreateKey(name: string, scope: "read" | "read+write") {
+  async function handleCreateKey(name: string, scope: "read" | "read+write", allowedProject: string | null) {
     setError(null);
     setRevealedKey(null);
     try {
       const created = await apiRequest<ApiKeyRecord>("/keys", {
         method: "POST",
         token,
-        body: { name, scope },
+        body: { name, scope, allowed_project: allowedProject },
       });
       setRevealedKey(created.plaintext_key || null);
       void loadData();
@@ -77,10 +86,13 @@ export default function SettingsRoute() {
 
           <ApiKeysPanel
             keys={keys}
+            projects={projects}
             revealedKey={revealedKey}
             onCreate={handleCreateKey}
             onRevoke={handleRevoke}
           />
+
+          <ExternalAiGuidePanel token={token} projects={projects} />
 
           <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6">
             <div>

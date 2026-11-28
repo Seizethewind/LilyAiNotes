@@ -1,4 +1,5 @@
 import { buildAuditStatement } from "../audit/writeAuditLog";
+import { resolveEffectiveProject } from "../auth/resolveEffectiveProject";
 import { normalizeTags } from "../classification/normalizeTags";
 import { sha256Hex } from "../crypto/sha256Hex";
 import { AppError, VALID_NOTE_TYPES } from "../types/env";
@@ -31,7 +32,7 @@ export interface CreateNoteInput {
 export async function createNote(db: D1Database, principal: AuthPrincipal, input: CreateNoteInput) {
   const title = (input.title || "").trim();
   const summary = (input.summary || "").trim();
-  const project = (input.project || "general").trim() || "general";
+  const project = resolveEffectiveProject(principal, input.project) || "general";
   const noteType = (input.type || "fact").trim().toLowerCase();
   if (!VALID_NOTE_TYPES.has(noteType)) {
     throw new AppError("validation_error", `Unsupported content type '${noteType}'.`, 422);
@@ -54,7 +55,7 @@ export async function createNote(db: D1Database, principal: AuthPrincipal, input
     throw new AppError("duplicate_note", "An active note with identical content already exists in this project.", 409);
   }
 
-  const effectiveStatus = principal.kind === "api_key" ? "draft" : input.status || "draft";
+  const effectiveStatus = principal.kind === "api_key" ? "unverified" : input.status || "draft";
   const now = new Date().toISOString();
   const noteId = crypto.randomUUID();
   const noteKey = await allocateNoteKey(db, principal.workspaceId, noteType);
